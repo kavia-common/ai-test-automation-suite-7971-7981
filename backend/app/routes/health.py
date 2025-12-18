@@ -10,8 +10,14 @@ class HealthCheck(MethodView):
     def get(self):
         """Return service and DB health."""
         try:
-            db_ok = True
             _ = TestCase.query.count()
+            db_ok = True
         except Exception:
             db_ok = False
         return {"message": "Healthy", "database": "ok" if db_ok else "error"}
+
+@blp.route("/healthz")
+class LivenessCheck(MethodView):
+    def get(self):
+        """Lightweight liveness endpoint that does not touch the database."""
+        return {"status": "ok"}
