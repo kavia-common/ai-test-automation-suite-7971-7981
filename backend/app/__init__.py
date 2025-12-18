@@ -21,7 +21,8 @@ cors_origins = (
 )
 CORS(
     app,
-    resources={r"/**": {"origins": cors_origins}},
+    # Flask-CORS expects simple wildcard patterns; r"/*" covers all routes.
+    resources={r"/*": {"origins": cors_origins}},
 )
 
 # OpenAPI / Swagger UI configuration
