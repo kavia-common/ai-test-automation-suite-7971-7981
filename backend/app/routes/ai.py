@@ -26,3 +26,32 @@ class AIGenerateTestsResource(MethodView):
             abort(400, message="Prompt is required")
         suggestions = generate_test_suggestions(prompt)
         return {"suggestions": suggestions}
+
+
+@blp.route("/tests/generate")
+class AIGenerateTestsAliasResource(MethodView):
+    @blp.arguments(AITestGenRequestSchema)
+    @blp.response(
+        200,
+        AITestGenResponseSchema,
+        description="Alias of /api/ai/generate-tests for backward compatibility",
+    )
+    def post(self, json_data):
+        """
+        Alias endpoint that forwards to the same logic as /api/ai/generate-tests.
+
+        This maintains backward compatibility with older clients expecting:
+        POST /api/ai/tests/generate
+
+        Request body:
+        - prompt: string
+
+        Returns:
+        - suggestions: list[TestCaseCreateSchema]
+        """
+        # Reuse the same logic to ensure identical behavior and schema
+        prompt = json_data.get("prompt", "").strip()
+        if not prompt:
+            abort(400, message="Prompt is required")
+        suggestions = generate_test_suggestions(prompt)
+        return {"suggestions": suggestions}
