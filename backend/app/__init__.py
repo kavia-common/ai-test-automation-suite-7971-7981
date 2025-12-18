@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
@@ -12,10 +13,15 @@ from .routes.ai import blp as ai_blp
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-# Enable CORS for preview origins and localhost
+# Enable CORS. Prefer explicit frontend origin from env if provided.
+# Uses REACT_APP_FRONTEND_URL when available; otherwise allows localhost & any preview origin.
+frontend_origin = os.getenv("REACT_APP_FRONTEND_URL")
+cors_origins = (
+    [frontend_origin] if frontend_origin else ["*", "http://localhost:*", "http://127.0.0.1:*"]
+)
 CORS(
     app,
-    resources={r"/**": {"origins": ["*", "http://localhost:*", "http://127.0.0.1:*"]}},
+    resources={r"/**": {"origins": cors_origins}},
 )
 
 # OpenAPI / Swagger UI configuration
