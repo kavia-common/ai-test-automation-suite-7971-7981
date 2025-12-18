@@ -1,7 +1,7 @@
 # AI Test Automation Suite - Backend
 
 Flask backend for the AI-enabled testing framework. Provides REST APIs for:
-- Health: GET /
+- Health: GET / and GET /healthz
 - Tests CRUD: /api/tests
 - Executions: /api/executions
 - Reports: /api/reports (including alias /api/reports/{execution_id})
@@ -33,6 +33,29 @@ This ensures requests from the frontend preview are accepted without additional 
 3. Visit:
    - http://localhost:5000/ (health)
    - http://localhost:5000/docs (Swagger UI)
+
+## Ops Checklist (Preview Recovery)
+
+If the running preview backend returns 500 even for `/healthz`:
+1. Check backend logs around the failure time to capture the traceback.
+2. Restart/redeploy the backend preview service so new code and deps are loaded.
+3. Ensure dependencies are installed from `backend/requirements.txt` in the runtime image/env.
+4. Verify env:
+   - REACT_APP_FRONTEND_URL=https://vscode-internal-36116-beta.beta01.cloud.kavia.ai:3000
+5. Confirm the process has permission to create/use the `instance/` folder (SQLite). Note: `/healthz` does not touch DB, so DB perms should not break it.
+6. Re-run E2E checks (see below).
+
+## E2E Revalidation Steps
+
+Backend:
+- GET /healthz -> expect 200 {"status":"ok"}
+- GET / -> expect 200 {"message":"Healthy","database":"ok" | "error"}
+- GET /docs and GET /openapi.json -> expect 200
+
+Frontend (once backend is healthy):
+1. Tests → New Test → Create with title/description/status → verify appears in list.
+2. Execute → select the created test → Start Execution → UI polls /api/executions/{id} until terminal state.
+3. Reports → confirm report exists → open Details (consumes /api/reports/by-execution/{id} or alias /api/reports/{id}).
 
 ## Notes
 
