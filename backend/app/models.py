@@ -17,7 +17,6 @@ class TestCase(db.Model, TimestampMixin):
     __tablename__ = "test_cases"
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.LargeBinary().with_variant(db.String(255), "sqlite")  # safe default on sqlite
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(50), nullable=False, default="draft")
